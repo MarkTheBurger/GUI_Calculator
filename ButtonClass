@@ -1,0 +1,78 @@
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+
+public class ButtonClass extends JButton
+{	
+	private static final Font smallFont = new Font("Verdana", Font.BOLD, 20);
+	private static final Color bgColor = new Color(48, 50, 52);
+	private static final Color borderColor = new Color(8,2,36);
+	
+	/* TODO
+	 * Make text bright white while the background is translucent
+	*/
+	private float opacity = 0.5f;
+	
+	
+	public void setOpacity(float opacity) {
+	    this.opacity = opacity;
+	    repaint();
+	    MainClass.buttonPanel.repaint();
+	}
+
+	public float getOpacity(){
+	    return this.opacity;
+	}
+	
+	@Override
+	public void paint(Graphics g) 
+	{       
+	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+	    super.paint(g2);
+	    g2.dispose();
+	}
+	
+	ButtonClass(String text)
+	{
+		this.setText(text);
+		this.setFont(ButtonClass.smallFont);
+		this.setForeground(Color.WHITE);
+		this.setBackground(ButtonClass.bgColor);
+		this.setOpacity(0.5f);
+		this.setBorder(BorderFactory.createLineBorder(ButtonClass.borderColor));
+		this.addActionListener(e -> 
+		{
+			MainClass.update(text);
+		});
+		
+		// The mouse hover effect
+		this.addMouseListener(new MouseAdapter() 
+		{
+		    public void mouseEntered(MouseEvent evt) 
+		    {
+		    	setBorder(BorderFactory.createLineBorder(new Color(1.f, 1.f, 1.f, .2f)));
+		    	setOpacity(0.7f);
+		    }
+
+		    public void mouseExited(MouseEvent evt) 
+		    {
+		    	setBorder(BorderFactory.createLineBorder(ButtonClass.borderColor));
+		    	setOpacity(0.5f);
+		    }
+		});
+	}
+	
+	public JComponent getButton()
+	{
+		return this;
+	}
+}
