@@ -10,20 +10,21 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultButtonModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.plaf.metal.MetalButtonUI;
 
 public class ButtonClass extends JButton
 {	
 	private static final Font smallFont = new Font("Verdana", Font.BOLD, 20);
-	private static final Color numbersBgColor = Color.WHITE;//new Color(48, 50, 52)
+	private static final Color numbersBgColor = new Color(48, 50, 52);
 	private static final Color specialBgColor = new Color(175, 143, 233);
-	private static final Color borderColor = new Color(8, 2, 36);
+	//private static final Color borderColor = new Color(8, 2, 36);
+	
+	private float alphaValue;
 	/* TODO
 	 * Set different background colors depending on the button
 	 * 
 	*/
-	
-	
+
+
 	public void setOpacity(float opacity) 
 	{
 		this.setBackground(
@@ -38,129 +39,71 @@ public class ButtonClass extends JButton
 		MainClass.buttonPanel.revalidate();
 	    MainClass.buttonPanel.repaint();
 	}
-
-	
-	/*
+	 
 	@Override
-	public void paint(Graphics g) 
-	{   
-		Graphics2D g2 = (Graphics2D) g.create();
-	    g2.setColor(ButtonClass.numbersBgColor);
-	    super.paint(g2);
-	    g2.dispose();
-	    MainClass.buttonPanel.repaint();
-	}
-*/
-
-	/*
-	@Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (isSelected()) {
-            setBorder(BorderFactory.createEmptyBorder());
-        } else {
-            setBorder(BorderFactory.createLoweredBevelBorder());
-        }
+	public void setEnabled(boolean b) {
+		setRolloverEnabled(false);
+        super.setEnabled(b);
+        model.setEnabled(b);
     }
-	*/
 	
 	ButtonClass(String text)
 	{
+		UIManager.getDefaults().put("Button.disabledText",Color.WHITE);
 		this.setText(text);
-		
 		this.setFont(ButtonClass.smallFont);
-		this.setForeground(Color.WHITE);
-		this.setFocusPainted(false);
-		this.setFocusable(false);
-		this.setRolloverEnabled(false);
-		this.setModel(new DefaultButtonModel()
-		{
-			@Override
-	        public boolean isPressed() {
-	            return false;
-	        }
-
-	        @Override
-	        public boolean isRollover() {
-	            return false;
-	        }
-	        
-	        @Override
-	        public void setRollover(boolean b) {
-	            //NOOP
-	        }
-		});
-		
-		this.setUI (new MetalButtonUI () {
-			@Override
-		    protected void paintButtonPressed (Graphics g, AbstractButton b) { }
-		});
+		this.setEnabled(false);
 		
 		try
 		{
 			Integer.parseInt(text);
+			
 			this.setBackground(ButtonClass.numbersBgColor);
+			alphaValue = 0.4f;
 		}
 		catch(Exception e)
 		{
 			if(text.equals("=") || text.equals("mode"))
+			{
 				this.setBackground(new Color(255, 140, 0));//new Color(237, 171, 239)
+				alphaValue = 0.8f;
+			}
 			else
+			{
 				this.setBackground(ButtonClass.specialBgColor);
+				alphaValue = 0.3f;
+			}
 		}
 		
+		this.setOpacity(alphaValue);
 		this.setBorder(BorderFactory.createLoweredBevelBorder()); //BorderFactory.createLineBorder(ButtonClass.borderColor)
 		
-		this.addActionListener(e -> { 
-			MainClass.updateForButtons(text); 
-			//this.setOpacity(0.4f);
-			/*
-			this.revalidate();
-			this.repaint();
-			MainClass.buttonPanel.revalidate();
-			MainClass.buttonPanel.repaint();
-			*/
-		});
 		
-		// The mouse hover effect (different for the equal sign & the mode vs all other buttons
-		if(text.equals("=") || text.equals("mode"))
+		this.addMouseListener(new MouseAdapter() 
 		{
-			this.setOpacity(0.9f);
-			
-			this.addMouseListener(new MouseAdapter() 
-			{
-			    public void mouseEntered(MouseEvent evt) 
-			    {
-			    	setBorder(BorderFactory.createLineBorder(Color.WHITE));
-			    	setOpacity(1.f);
-			    }
+		    public void mouseEntered(MouseEvent evt) 
+		    {
+		    	setBorder(BorderFactory.createLineBorder(Color.WHITE));
+		    	setOpacity(alphaValue + 0.2f);
+		    }
 
-			    public void mouseExited(MouseEvent evt) 
-			    {
-			    	setBorder(BorderFactory.createLoweredBevelBorder());
-			    	setOpacity(0.9f);
-			    }
-			});
-		}
-		else
-		{
-			this.setOpacity(0.2f);
-			
-			this.addMouseListener(new MouseAdapter() 
-			{
-			    public void mouseEntered(MouseEvent evt) 
-			    {
-			    	setBorder(BorderFactory.createLineBorder(Color.WHITE));
-			    	setOpacity(0.4f);
-			    }
-
-			    public void mouseExited(MouseEvent evt) 
-			    {
-			    	setBorder(BorderFactory.createLoweredBevelBorder());
-			    	setOpacity(0.2f);
-			    }
-			});
-		}
+		    public void mouseExited(MouseEvent evt) 
+		    {
+		    	setBorder(BorderFactory.createLoweredBevelBorder());
+		    	setOpacity(alphaValue);
+		    }
+		    
+		    @Override
+            public void mousePressed(MouseEvent arg0) {
+                if (arg0.getButton() == MouseEvent.BUTTON1){
+                	MainClass.updateForButtons(text);
+                } else if (arg0.getButton() == MouseEvent.BUTTON2){
+                    System.out.println("Middle button clicked");
+                } else if (arg0.getButton() == MouseEvent.BUTTON3) {
+                    System.out.println("Right button clicked");
+                } 
+            }
+		});
 	}
 	
 	public JComponent getButton()
