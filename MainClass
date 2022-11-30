@@ -15,13 +15,20 @@ public class MainClass
 	private final Color bgColor = new Color(0.031f, 0.00784f, 0.14118f, 1.f);
 	private final Font titleFont = new Font("Verdana", Font.PLAIN, 50);
 	private final Font smallFont = new Font("Verdana", Font.BOLD, 18);
-	private static final String[][] buttons = {
-												{"%", "CE", "C", "DEL"}, 
-												{"1/x", "x^2", "√x", "÷"}, 
-												{"7", "8", "9", "x"}, 
-												{"4", "5", "6", "-"}, 
-												{"1", "2", "3", "+"}, 
-												{"+/-", "0", ".", "="}};
+	private static final String[][] standartModeButtons = {
+			{"C", "DEL", "%", "÷"}, 
+			{"7", "8", "9", "x"}, 
+			{"4", "5", "6", "-"}, 
+			{"1", "2", "3", "+"}, 
+			{"mode", "0", ".", "="}};
+	private static final String[][] expandedModeButtons = {
+			{"2nd", "sin", "cos", "tan", "Pi"}, 
+			{"|x|", "ln(x)", "log(a)b", "(", ")"},
+			{"x^y", "AC", "DEL", "%", "÷"},
+			{"sqrt(x)", "7", "8", "9", "x"}, 
+			{"x!", "4", "5", "6", "-"}, 
+			{"1/x", "1", "2", "3", "+"}, 
+			{"mode", "e", "0", ".", "="}};
 
 	private static JFrame f;
 	private static JLabel operationField;
@@ -30,7 +37,7 @@ public class MainClass
 
 	public static void main(String[] args) 
 	{
-		/*
+		
 		try
         {
         	// Adjusts the program's components to be of the same design language as the operating system that the program runs on
@@ -41,7 +48,7 @@ public class MainClass
         {
             JOptionPane.showMessageDialog(null, "UIManager failed to load the setLookAndFeel method!", "Error!", JOptionPane.ERROR_MESSAGE);
         }
-		*/
+		
 		new MainClass();
 	}
 	
@@ -59,7 +66,7 @@ public class MainClass
 		
 		// Dynamically scales the application depending on the screen resolution
 		int height = (int)(Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2);
-		int width = (int)(height / 1.7);
+		int width = (int)(height / 1.5);
 		f.setPreferredSize(new Dimension(width, height));
 		
 		f.add(initializeComponents());
@@ -77,7 +84,7 @@ public class MainClass
 	{
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		JPanel topPanel = new JPanel(new BorderLayout());
-		buttonPanel = new JPanel(new GridLayout(6, 4));
+		buttonPanel = new JPanel(new GridLayout(5, 4));
 		GridBagConstraints g = new GridBagConstraints();
 		
 		outputField = new JLabel("0", SwingConstants.RIGHT);
@@ -99,9 +106,9 @@ public class MainClass
 		
 		g.fill = GridBagConstraints.BOTH;
 		
-		for(g.gridy = 0; g.gridy < 6; g.gridy++)
-			for(g.gridx = 0; g.gridx < 4; g.gridx++)                                         
-				buttonPanel.add(new ButtonClass(buttons[g.gridy][g.gridx]).getButton(), g);
+		for(g.gridy = 0; g.gridy < standartModeButtons.length; g.gridy++)
+			for(g.gridx = 0; g.gridx < standartModeButtons[0].length; g.gridx++)                                         
+				buttonPanel.add(new ButtonClass(standartModeButtons[g.gridy][g.gridx]).getButton(), g);
 
 		mainPanel.add(topPanel, BorderLayout.NORTH);
 		mainPanel.add(buttonPanel, BorderLayout.CENTER);
