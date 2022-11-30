@@ -10,7 +10,7 @@ import javax.swing.JComponent;
 public class ButtonClass extends JButton
 {	
 	private static final Font smallFont = new Font("Verdana", Font.BOLD, 20);
-	private static final Color numbersBgColor = new Color(48, 50, 52);
+	private static final Color numbersBgColor = Color.WHITE;//new Color(48, 50, 52)
 	private static final Color specialBgColor = new Color(175, 143, 233);
 	private static final Color borderColor = new Color(8, 2, 36);
 	/* TODO
@@ -53,8 +53,10 @@ public class ButtonClass extends JButton
 	ButtonClass(String text)
 	{
 		this.setText(text);
+		this.setContentAreaFilled(false);
 		this.setFont(ButtonClass.smallFont);
 		this.setForeground(Color.WHITE);
+		this.setOpaque(true);
 		
 		try
 		{
@@ -63,11 +65,17 @@ public class ButtonClass extends JButton
 		}
 		catch(Exception e)
 		{
-			this.setBackground(ButtonClass.specialBgColor);
+			if(text.equals("="))
+				this.setBackground(new Color(255, 140, 0));//new Color(237, 171, 239)
+			else
+				this.setBackground(ButtonClass.specialBgColor);
 		}
 		
+		if(text.equals("="))
+			this.setOpacity(0.9f);
+		else
+			this.setOpacity(0.2f);
 		
-		this.setOpacity(0.2f);
 		this.setBorder(BorderFactory.createLineBorder(ButtonClass.borderColor));
 		this.addActionListener(e -> 
 		{
