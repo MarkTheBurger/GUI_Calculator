@@ -1,15 +1,12 @@
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultButtonModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.UIManager;
 
 public class ButtonClass extends JButton
 {	
@@ -49,9 +46,9 @@ public class ButtonClass extends JButton
 	
 	ButtonClass(String text)
 	{
-		UIManager.getDefaults().put("Button.disabledText",Color.WHITE);
 		this.setText(text);
 		this.setFont(ButtonClass.smallFont);
+		UIManager.getDefaults().put("Button.disabledText",Color.WHITE);
 		this.setEnabled(false);
 		
 		try
