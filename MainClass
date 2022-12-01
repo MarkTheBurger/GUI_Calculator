@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import javax.swing.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 
 /* TODO
  * 
@@ -25,11 +24,11 @@ public class MainClass
 			{"mode", "0", ".", "="}};
 	private static final String[][] expandedModeButtons = {
 			{"2nd", "sin", "cos", "tan", "Pi"}, 
-			{"|x|", "ln(x)", "log(a)b", "(", ")"},
-			{"x^y", "C", "DEL", "%", "÷"},
-			{"sqrt(x)", "7", "8", "9", "x"}, 
-			{"x!", "4", "5", "6", "-"}, 
-			{"1/x", "1", "2", "3", "+"}, 
+			{"deg", "ln(x)", "log(a)x", "(", ")"},
+			{"|x|", "C", "DEL", "%", "÷"},
+			{"x^y", "7", "8", "9", "x"}, 
+			{"√x", "4", "5", "6", "-"}, 
+			{"x!", "1", "2", "3", "+"}, 
 			{"mode", "e", "0", ".", "="}};
 
 	private static JFrame f;
@@ -161,16 +160,33 @@ public class MainClass
 			Integer.parseInt(text);
 			
 			// either replaces the initial 0 with a number or appends the number to the string
-			String adjustedText = Objects.equals(outputField.getText(), "0") ? 
-					text : outputField.getText() + text;
+			String adjustedText = outputField.getText().equals("0") ? text : outputField.getText() + text;
 			
 			outputField.setText(adjustedText);
 			updateOperationField(outputField.getText());
 		}
-		catch(Exception exception)
+		catch(Exception exception) // an operator had been entered
 		{
 			// TODO: special case for the equals sign
-			outputField.setText(outputField.getText() + text);
+			if(outputField.getText().equals("0"))
+			{
+				switch(text)
+				{
+					case "+": 
+					case "-":
+					case "*":
+					case "/":
+					case ".":
+					case "!":
+						outputField.setText(outputField.getText() + text);
+					break;
+					
+					default:
+						outputField.setText(text + outputField.getText());
+				}
+			}
+			else
+				outputField.setText(outputField.getText() + text);
 		}
 	}
 	
@@ -193,7 +209,8 @@ public class MainClass
 			while(opNum.size() != 0)
 			{
 				// pick the highest priority operator, scan through the list to find the numbers surrounding it
-				// Priority: division, multiplication, addition, subtraction
+				// Priority: power, brackets, division, multiplication, addition, subtraction
+				text = brackets(text);
 				text = compute(text, '/');
 				text = compute(text, '*');
 				text = compute(text, '-');
@@ -216,6 +233,33 @@ public class MainClass
 				opNum.add(i);
 				opName.add(text.charAt(i));
 			}
+		}
+	}
+	
+	static String brackets(String initialText)
+	{
+		// all the compute functions will go into here
+		
+		String textInBrackets;
+		while(true)
+		{
+			int openBracketIndex = opName.indexOf('(');
+			int closedBracketIndex = opName.indexOf(')');
+			
+			// checks that the open bracket is inside the string and is not the last character
+			if(openBracketIndex == -1 || opNum.get(openBracketIndex) == initialText.length()-1)
+				openBracketIndex = 0;
+				
+			if(closedBracketIndex == -1 || opNum.get(closedBracketIndex) == initialText.length()-1)
+				closedBracketIndex = 0;
+			
+			if(openBracketIndex != 0 && closedBracketIndex != 0)
+			{
+				textInBrackets = initialText.substring(openBracketIndex, closedBracketIndex);
+				return textInBrackets;
+			}
+			else
+				return initialText;
 		}
 	}
 	
@@ -323,15 +367,15 @@ public class MainClass
 			break;	
 			
 			case "sin":
-				addCharacter("*sin(");
+				addCharacter("sin(");
 			break;
 			
 			case "cos":
-				addCharacter("*cos(");
+				addCharacter("cos(");
 			break;
 			
 			case "tan":
-				addCharacter("*tan(");
+				addCharacter("tan(");
 			break;
 			
 			default:
