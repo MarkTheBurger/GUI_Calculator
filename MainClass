@@ -23,7 +23,7 @@ public class MainClass
 			{"1", "2", "3", "+"}, 
 			{"mode", "0", ".", "="}};
 	private static final String[][] expandedModeButtons = {
-			{"2nd", "sin", "cos", "tan", "Pi"}, 
+			{"2nd", "sin", "cos", "tan", "π"}, 
 			{"deg", "ln(x)", "log(a)x", "(", ")"},
 			{"|x|", "C", "DEL", "%", "÷"},
 			{"x^y", "7", "8", "9", "x"}, 
@@ -36,6 +36,7 @@ public class MainClass
 	private static JLabel outputField;
 	public static JPanel buttonPanel;
 	private static boolean scientificMode = false;
+	private static boolean degrees = true;
 
 	public static void main(String[] args) 
 	{
@@ -168,6 +169,7 @@ public class MainClass
 		catch(Exception exception) // an operator had been entered
 		{
 			// TODO: special case for the equals sign
+			// If the input line is empty and a special function is entered
 			if(outputField.getText().equals("0"))
 			{
 				switch(text)
@@ -178,15 +180,52 @@ public class MainClass
 					case "/":
 					case ".":
 					case "!":
+					case "^":
 						outputField.setText(outputField.getText() + text);
+					break;
+					
+					case "π":
+						outputField.setText("π");
 					break;
 					
 					default:
 						outputField.setText(text + outputField.getText());
 				}
 			}
-			else
-				outputField.setText(outputField.getText() + text);
+			else // when there are already numbers/operators entered in the input line of the calculator
+			{
+				switch(text)
+				{
+					case "+": 
+					case "-":
+					case "*":
+					case "/":
+					case ".":
+					case "!":
+					case "^":
+						try // checks to see if the last character entered was an operator or a number
+						{
+							Integer.parseInt(Character.toString(outputField.getText().charAt(outputField.getText().length()-1)));
+							
+							outputField.setText(outputField.getText() + text);
+						}
+						catch(Exception e)
+						{ 	// if the last character in the calculator string was an operator, a new operator replaces the previous one
+							outputField.setText(outputField.getText().substring(0, outputField.getText().length()-1) + text);
+						}
+						
+						
+					break;
+					
+					case "π":
+						outputField.setText("π");
+					break;
+					
+					default:
+						outputField.setText(text + outputField.getText());
+				}
+			}
+				
 		}
 	}
 	
@@ -377,6 +416,11 @@ public class MainClass
 			case "tan":
 				addCharacter("tan(");
 			break;
+			
+			case "deg": // changes from radians to degrees
+			case "rad":
+				degrees = !degrees;
+				break;
 			
 			default:
 				addCharacter(text);
