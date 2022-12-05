@@ -137,7 +137,7 @@ public class MainClass
 		@Override
 		public void keyPressed(KeyEvent e) // Invoked when a physical key is pressed down. Uses KeyCode, int output
 		{
-			//updateOperationField("-1.0*(2");
+			//updateOperationField("√0");
 			if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
 				deleteCharacter();
 			else if(validInput(e.getKeyCode()))
@@ -194,6 +194,8 @@ public class MainClass
 			}
 			else // when there are already numbers/operators entered in the input line of the calculator
 			{
+				char previousChar = outputField.getText().charAt(outputField.getText().length()-1);
+				
 				switch(text)
 				{
 					case "+": 
@@ -203,15 +205,16 @@ public class MainClass
 					case ".":
 					case "!":
 					case "^":
+						
 						try // checks to see if the last character entered was an operator or a number
 						{
-							Integer.parseInt(Character.toString(outputField.getText().charAt(outputField.getText().length()-1)));
+							Integer.parseInt(Character.toString(previousChar));
 							
 							outputField.setText(outputField.getText() + text);
 						}
 						catch(Exception e)
 						{ 	// if the last character in the calculator string was an operator (with an exception of the closed bracket), a new operator replaces the previous one
-							if(outputField.getText().charAt(outputField.getText().length()-1) == ')')
+							if(previousChar == ')' || previousChar == '!')
 								outputField.setText(outputField.getText() + text);
 							else
 								outputField.setText(outputField.getText().substring(0, outputField.getText().length()-1) + text);
@@ -221,13 +224,13 @@ public class MainClass
 					case ")":
 						try // checks to see if the last character entered was an operator or a number
 						{
-							Integer.parseInt(Character.toString(outputField.getText().charAt(outputField.getText().length()-1)));
+							Integer.parseInt(Character.toString(previousChar));
 							
 							outputField.setText(outputField.getText() + ")");
 						}
 						catch(Exception e)
 						{
-							if(outputField.getText().charAt(outputField.getText().length()-1) != ')')
+							if(previousChar != ')')
 								outputField.setText(outputField.getText() + "0)");
 						}
 					break;
@@ -235,12 +238,12 @@ public class MainClass
 					case "(":
 						try
 						{
-							Integer.parseInt(Character.toString(outputField.getText().charAt(outputField.getText().length()-1)));
+							Integer.parseInt(Character.toString(previousChar));
 							outputField.setText(outputField.getText() + "*(");
 						}
 						catch (Exception e)
 						{
-							if(outputField.getText().charAt(outputField.getText().length()-1) != ')')
+							if(previousChar != ')')
 								outputField.setText(outputField.getText() + "(");
 							else
 								outputField.setText(outputField.getText() + "*(");
@@ -281,12 +284,18 @@ public class MainClass
 			while(hasOperators(text))
 				text = brackets(text);
 			
-			operationField.setText("= " + text);
+			if(!text.contentEquals(""))
+				operationField.setText("= " + text);
+			else
+				operationField.setText(" ");
 		}
 	}
 	
 	static boolean hasOperators(String text)
 	{
+		if(text.length() == 0)
+			return false;
+		
 		int i;
 		// the minus in front of the first number like '-1' should not be considered as an operator
 		if(text.charAt(0) == '-')
@@ -315,6 +324,9 @@ public class MainClass
 		// Stores the locations of all the operators in the text and their symbols
 		operatorsIndexes = new ArrayList<Integer>();
 		operatorsNames = new ArrayList<String>();
+		
+		if(text.length() == 0)
+			return;
 		
 		int i;
 		// the minus in front of the first number like '-1' should not be considered as an operator
@@ -401,10 +413,6 @@ public class MainClass
 	@SuppressWarnings("preview")
 	static String compute(String text, String operator)
 	{
-		String result;
-		int start, end;
-		StringBuilder temp;
-		
 		while(true)
 		{
 			int arrIndex = operatorsNames.indexOf(operator);
@@ -412,10 +420,13 @@ public class MainClass
 			// checks that the operator is inside the string and is not the last character
 			if(arrIndex != -1 && operatorsIndexes.get(arrIndex) < text.length()-1)
 			{
+				int start, end;
+				double x, y;
+				
 				// if the operator is the first one, start from the beginning of the string`
 				if(arrIndex == 0)
 					start = 0;
-				else // start from the previously available operator
+				else // start with the last available operator
 					start = operatorsIndexes.get(arrIndex - 1) + 1;
 				
 				// if the operator is the last one, end with the end of the string
@@ -424,11 +435,16 @@ public class MainClass
 				else // end with the next available operator
 					end = operatorsIndexes.get(arrIndex + 1);
 
-				double x = Double.parseDouble(text.substring(start, operatorsIndexes.get(arrIndex)));
-				double y = Double.parseDouble(text.substring(operatorsIndexes.get(arrIndex) + 1, end));
+				// if the operator is the first item in the string (like a square root, sin, cos, etc.)
+				if(start == 0 && operatorsIndexes.get(arrIndex) == 0)
+					x = 0;
+				else
+					x = Double.parseDouble(text.substring(start, operatorsIndexes.get(arrIndex)));
 				
-				temp = new StringBuilder(text);
-				result = switch (operator)
+				y = Double.parseDouble(text.substring(operatorsIndexes.get(arrIndex) + 1, end));
+				
+				
+				String result = switch (operator)
 				{
 					case "+":
 						yield String.valueOf(x+y);
@@ -441,11 +457,21 @@ public class MainClass
 						
 					case "/":
 						yield String.valueOf(x/y);
+						
+					case "^":
+						yield String.valueOf(Math.pow(x,y));
+					
+					case "√":
+						yield String.valueOf(Math.sqrt(y));
+						
+					case "!":
+						yield String.valueOf(factorial(x));
 					
 					default:
 						yield "Error";
 				};
 
+				StringBuilder temp = new StringBuilder(text);
 				temp.replace(start, end, result);
 				text = temp.toString();
 			}
@@ -463,6 +489,17 @@ public class MainClass
 			findOperators(text);
 		}
 		return text;
+	}
+	
+	static int factorial(double x)
+	{
+		if(x == 0)
+			return 1;
+		
+		for(int i = 1; i < (int)x; i++)
+			x *= i;
+		
+		return (int)x;
 	}
 	
 	static void updateForButtons(String text)
