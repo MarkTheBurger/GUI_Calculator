@@ -83,18 +83,22 @@ public class ButtonClass extends JButton
 		    @Override
             public void mousePressed(MouseEvent arg0) {
                 if (arg0.getButton() == MouseEvent.BUTTON1){
-                	MainClass.updateForButtons(text);
-                	
-                	if(getText().equals("deg"))
+                	switch(getText())
                 	{
-                		setText("rad");
-                		MainClass.buttonPanel.repaint();
-                	}	
-                	else if(getText().equals("rad"))
-                	{
-                		setText("deg");
-                		MainClass.buttonPanel.repaint();
+                		case "deg":
+                			setText(text);
+                			MainClass.updateForButtons(text);
+                		break;
+                			
+                		case "rad":
+                			setText(text);
+                			MainClass.updateForButtons(text);
+                		break;
+                		
+                		default:
+                			MainClass.updateForButtons(text);
                 	}
+                		MainClass.buttonPanel.repaint();
                 	
                 } else if (arg0.getButton() == MouseEvent.BUTTON2){
                     System.out.println("Middle button clicked");
