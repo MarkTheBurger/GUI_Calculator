@@ -14,8 +14,8 @@ import javax.swing.*;
 public class MainClass 
 {
 	private final Color bgColor = new Color(0.031f, 0.00784f, 0.14118f, 1.f);
-	private final Font titleFont = new Font("Verdana", Font.BOLD, 60);
-	private final Font smallFont = new Font("Verdana", Font.BOLD, 18);
+	private final static Font titleFont = new Font("Verdana", Font.BOLD, 60);
+	private final static Font smallFont = new Font("Verdana", Font.BOLD, 24);
 	private static final String[][] standartModeButtons = {
 			{"C", "DEL", "%", "÷"}, 
 			{"7", "8", "9", "x"}, 
@@ -24,13 +24,17 @@ public class MainClass
 			{"mode", "0", ".", "="}};
 	private static final String[][] expandedModeButtons = {
 			{"2nd", "sin", "cos", "tan", "π"}, 
-			{"deg", "ln(x)", "log(a)x", "(", ")"},
-			{"|x|", "C", "DEL", "%", "÷"},
+			{"deg", "ln(x)", "lg(x)", "(", ")"},
+			{"EXP", "C", "DEL", "√", "÷"},
 			{"x^y", "7", "8", "9", "x"}, 
-			{"√x", "4", "5", "6", "-"}, 
+			{"|x|", "4", "5", "6", "-"}, 
 			{"x!", "1", "2", "3", "+"}, 
 			{"mode", "e", "0", ".", "="}};
-
+	private static final String[] operatorsPriority = {"sin", "cos", "tan", "arcsin", "arccos", "arctan", "lg", "ln",
+														"√", "^", "EXP", "!", "/", "*", "+", "-"};
+	private static ArrayList<Integer> operatorsIndexes;
+	private static ArrayList<String> operatorsNames;
+	
 	private static JFrame f;
 	private static JLabel operationField;
 	private static JLabel outputField;
@@ -133,6 +137,7 @@ public class MainClass
 		@Override
 		public void keyPressed(KeyEvent e) // Invoked when a physical key is pressed down. Uses KeyCode, int output
 		{
+			//updateOperationField("-1.0*(2");
 			if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
 				deleteCharacter();
 			else if(validInput(e.getKeyCode()))
@@ -164,7 +169,6 @@ public class MainClass
 			String adjustedText = outputField.getText().equals("0") ? text : outputField.getText() + text;
 			
 			outputField.setText(adjustedText);
-			updateOperationField(outputField.getText());
 		}
 		catch(Exception exception) // an operator had been entered
 		{
@@ -181,15 +185,11 @@ public class MainClass
 					case ".":
 					case "!":
 					case "^":
-						outputField.setText(outputField.getText() + text);
-					break;
-					
-					case "π":
-						outputField.setText("π");
+						outputField.setText("0" + text);
 					break;
 					
 					default:
-						outputField.setText(text + outputField.getText());
+						outputField.setText(text);
 				}
 			}
 			else // when there are already numbers/operators entered in the input line of the calculator
@@ -210,27 +210,64 @@ public class MainClass
 							outputField.setText(outputField.getText() + text);
 						}
 						catch(Exception e)
-						{ 	// if the last character in the calculator string was an operator, a new operator replaces the previous one
-							outputField.setText(outputField.getText().substring(0, outputField.getText().length()-1) + text);
+						{ 	// if the last character in the calculator string was an operator (with an exception of the closed bracket), a new operator replaces the previous one
+							if(outputField.getText().charAt(outputField.getText().length()-1) == ')')
+								outputField.setText(outputField.getText() + text);
+							else
+								outputField.setText(outputField.getText().substring(0, outputField.getText().length()-1) + text);
 						}
-						
-						
 					break;
 					
-					case "π":
-						outputField.setText("π");
+					case ")":
+						try // checks to see if the last character entered was an operator or a number
+						{
+							Integer.parseInt(Character.toString(outputField.getText().charAt(outputField.getText().length()-1)));
+							
+							outputField.setText(outputField.getText() + ")");
+						}
+						catch(Exception e)
+						{
+							if(outputField.getText().charAt(outputField.getText().length()-1) != ')')
+								outputField.setText(outputField.getText() + "0)");
+						}
+					break;
+					
+					case "(":
+						try
+						{
+							Integer.parseInt(Character.toString(outputField.getText().charAt(outputField.getText().length()-1)));
+							outputField.setText(outputField.getText() + "*(");
+						}
+						catch (Exception e)
+						{
+							if(outputField.getText().charAt(outputField.getText().length()-1) != ')')
+								outputField.setText(outputField.getText() + "(");
+							else
+								outputField.setText(outputField.getText() + "*(");
+						}
 					break;
 					
 					default:
-						outputField.setText(text + outputField.getText());
+						outputField.setText(outputField.getText() + "*" + text);
 				}
 			}
-				
 		}
+		updateOperationField(outputField.getText());
 	}
 	
-	private static ArrayList<Integer> opNum;
-	private static ArrayList<Character> opName;
+	 static void setAnswerMode(boolean answerMode)
+	{
+		if(answerMode)
+		{
+			operationField.setFont(titleFont);
+			outputField.setFont(smallFont);
+		}
+		else
+		{
+			operationField.setFont(smallFont);
+			outputField.setFont(titleFont);
+		}
+	}
 	
 	static void updateOperationField(String text)
 	{
@@ -240,71 +277,129 @@ public class MainClass
 		}
 		else // Evaluate the answer
 		{
-			// Scans through the string and finds any operators
-			// Fills the arraylists with them in order of appearance
-			findOperators(text);
-			
-			// if any operators are present, calculate the result
-			while(opNum.size() != 0)
-			{
-				// pick the highest priority operator, scan through the list to find the numbers surrounding it
-				// Priority: power, brackets, division, multiplication, addition, subtraction
+			// if there are any operators, calculate the result
+			while(hasOperators(text))
 				text = brackets(text);
-				text = compute(text, '/');
-				text = compute(text, '*');
-				text = compute(text, '-');
-				text = compute(text, '+');
-			}
+			
 			operationField.setText("= " + text);
 		}
+	}
+	
+	static boolean hasOperators(String text)
+	{
+		int i;
+		// the minus in front of the first number like '-1' should not be considered as an operator
+		if(text.charAt(0) == '-')
+			i = 1;
+		else
+			i = 0;
+		
+		// goes through the string to find any operators beside the dot
+		for(; i < text.length(); i++)
+		{
+			try 
+			{
+				Integer.parseInt(Character.toString(text.charAt(i)));
+			}
+			catch (Exception e)
+			{
+				if(text.charAt(i) != '.')
+					return true;
+			}
+		}
+		return false;
 	}
 	
 	static void findOperators(String text)
 	{
 		// Stores the locations of all the operators in the text and their symbols
-		opNum = new ArrayList<Integer>();
-		opName = new ArrayList<Character>();
+		operatorsIndexes = new ArrayList<Integer>();
+		operatorsNames = new ArrayList<String>();
 		
-		for(int i = 1; i < text.length(); i++)
+		int i;
+		// the minus in front of the first number like '-1' should not be considered as an operator
+		if(text.charAt(0) == '-')
+			i = 1;
+		else
+			i = 0;
+		
+		for(; i < text.length(); i++)
 		{
-			if(Character.getNumericValue(text.charAt(i)) == -1 && text.charAt(i) != '.')
+			try 
 			{
-				opNum.add(i);
-				opName.add(text.charAt(i));
+				Integer.parseInt(Character.toString(text.charAt(i)));
+			}
+			catch (Exception e)
+			{
+				if(text.charAt(i) != '.')
+				{
+					operatorsIndexes.add(i);
+					operatorsNames.add(Character.toString(text.charAt(i)));
+				}
 			}
 		}
 	}
 	
+	// should be a recursive function
 	static String brackets(String initialText)
 	{
-		// all the compute functions will go into here
-		
 		String textInBrackets;
-		while(true)
+		
+		findOperators(initialText);
+		
+		// tries to find the brackets in the input string
+		boolean openBracket = operatorsNames.indexOf("(") == -1 ? false : true;
+		boolean closedBracket = operatorsNames.indexOf(")") == -1 ? false : true;
+		
+		//if there are no brackets, calculate the whole string
+		if(!openBracket && !closedBracket)
 		{
-			int openBracketIndex = opName.indexOf('(');
-			int closedBracketIndex = opName.indexOf(')');
-			
-			// checks that the open bracket is inside the string and is not the last character
-			if(openBracketIndex == -1 || opNum.get(openBracketIndex) == initialText.length()-1)
-				openBracketIndex = 0;
-				
-			if(closedBracketIndex == -1 || opNum.get(closedBracketIndex) == initialText.length()-1)
-				closedBracketIndex = 0;
-			
-			if(openBracketIndex != 0 && closedBracketIndex != 0)
+			// picks the highest priority operator, scans through the list to find the numbers surrounding it
+			for(String i : operatorsPriority)
 			{
-				textInBrackets = initialText.substring(openBracketIndex, closedBracketIndex);
-				return textInBrackets;
+				if(operatorsIndexes.size() > 0)
+					initialText = compute(initialText, i);
+				else
+					break;
 			}
-			else
-				return initialText;
+			return initialText;
 		}
+		else if(openBracket && !closedBracket) // if only the closed bracket exists, the open bracket is implied to be at the beginning of the string
+		{
+			initialText = initialText +  ")";
+			findOperators(initialText);
+		}
+		else if(!openBracket && closedBracket) // if only the open bracket exists, the closed bracket is implied to be at the end of the string
+		{
+			initialText = "(" + initialText;
+			findOperators(initialText);
+		}
+		
+		int openBracketIndex = operatorsIndexes.get(operatorsNames.indexOf("("));
+		int closedBracketIndex = operatorsIndexes.get(operatorsNames.indexOf(")"));
+		
+		// if the brackets are right next to each other, return nothing as text
+		if(openBracketIndex + 1 == closedBracketIndex)
+			textInBrackets = "0";
+		else
+			textInBrackets = initialText.substring(openBracketIndex + 1, closedBracketIndex);
+		 
+		/*
+		operatorsIndexes.remove(operatorsNames.indexOf("("));
+		operatorsNames.remove(operatorsNames.indexOf("("));
+		operatorsIndexes.remove(operatorsNames.indexOf(")"));
+		operatorsNames.remove(operatorsNames.indexOf(")"));
+		*/
+		// the 'brackets' function calls on itself to check for more brackets
+		// adjust (wrong)
+		StringBuffer buf = new StringBuffer(initialText);
+		buf.replace(openBracketIndex, closedBracketIndex + 1, brackets(textInBrackets));
+		return buf.toString();
 	}
 	
 	// An enhanced switch statement is used, it is a preview feature in Java 13
 	@SuppressWarnings("preview")
-	static String compute(String text, char operator)
+	static String compute(String text, String operator)
 	{
 		String result;
 		int start, end;
@@ -312,39 +407,39 @@ public class MainClass
 		
 		while(true)
 		{
-			int arrIndex = opName.indexOf(operator);
+			int arrIndex = operatorsNames.indexOf(operator);
 			
 			// checks that the operator is inside the string and is not the last character
-			if(arrIndex != -1 && opNum.get(arrIndex) < text.length()-1)
+			if(arrIndex != -1 && operatorsIndexes.get(arrIndex) < text.length()-1)
 			{
 				// if the operator is the first one, start from the beginning of the string`
 				if(arrIndex == 0)
 					start = 0;
 				else // start from the previously available operator
-					start = opNum.get(arrIndex - 1) + 1;
+					start = operatorsIndexes.get(arrIndex - 1) + 1;
 				
 				// if the operator is the last one, end with the end of the string
-				if(arrIndex + 1 == opNum.size())
+				if(arrIndex + 1 == operatorsIndexes.size())
 					end = text.length();
 				else // end with the next available operator
-					end = opNum.get(arrIndex + 1);
+					end = operatorsIndexes.get(arrIndex + 1);
 
-				double x = Double.parseDouble(text.substring(start, opNum.get(arrIndex)));
-				double y = Double.parseDouble(text.substring(opNum.get(arrIndex) + 1, end));
+				double x = Double.parseDouble(text.substring(start, operatorsIndexes.get(arrIndex)));
+				double y = Double.parseDouble(text.substring(operatorsIndexes.get(arrIndex) + 1, end));
 				
 				temp = new StringBuilder(text);
 				result = switch (operator)
 				{
-					case '+':
+					case "+":
 						yield String.valueOf(x+y);
 					
-					case '-':
+					case "-":
 						yield String.valueOf(x-y);
 						
-					case '*':
+					case "*":
 						yield String.valueOf(x*y);
 						
-					case '/':
+					case "/":
 						yield String.valueOf(x/y);
 					
 					default:
@@ -354,12 +449,12 @@ public class MainClass
 				temp.replace(start, end, result);
 				text = temp.toString();
 			}
-			else if(arrIndex == -1)
+			else if(arrIndex == -1) // if the operator is not in the string, exit the "compute"
 				break;
 			else
 			{
-				opNum.remove(arrIndex);
-				opName.remove(arrIndex);
+				operatorsIndexes.remove(arrIndex);
+				operatorsNames.remove(arrIndex);
 				text = text.substring(0, text.length()-1);
 				break;
 			}
@@ -373,16 +468,23 @@ public class MainClass
 	static void updateForButtons(String text)
 	{
 		/*
-		 * {"2nd", "sin", "cos", "tan", "Pi"}, 
-			{"|x|", "ln(x)", "log(a)b", "(", ")"},
-			{"x^y", "C", "DEL", "%", "÷"},
-			{"sqrt(x)", "7", "8", "9", "x"}, 
-			{"x!", "4", "5", "6", "-"}, 
-			{"1/x", "1", "2", "3", "+"}, 
+		 * {"2nd", "sin", "cos", "tan", "π"}, 
+			{"deg", "ln(x)", "lg(x)", "(", ")"},
+			{"EXP", "C", "DEL", "√", "÷"},
+			{"x^y", "7", "8", "9", "x"}, 
+			{"|x|", "4", "5", "6", "-"}, 
+			{"x!", "1", "2", "3", "+"}, 
 			{"mode", "e", "0", ".", "="}};
 		 */
+		setAnswerMode(false);
+		
 		switch(text)
 		{
+			case "=":
+			// if the equal sign is pressed, enter the 'answer' mode
+				setAnswerMode(true);
+			break;
+			
 			case "DEL":
 				deleteCharacter();
 			break;
@@ -406,21 +508,29 @@ public class MainClass
 			break;	
 			
 			case "sin":
-				addCharacter("sin(");
-			break;
-			
 			case "cos":
-				addCharacter("cos(");
+			case "tan":
+			case "EXP":
+				addCharacter(text + "(");
 			break;
 			
-			case "tan":
-				addCharacter("tan(");
+			case "ln(x)":
+			case "lg(x)":
+				addCharacter(text.substring(0, text.length() - 2));
+			break;
+			
+			case "x^y":
+				addCharacter("^");
+			break;
+			
+			case "x!":
+				addCharacter("!");
 			break;
 			
 			case "deg": // changes from radians to degrees
 			case "rad":
 				degrees = !degrees;
-				break;
+			break;
 			
 			default:
 				addCharacter(text);
