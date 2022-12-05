@@ -2,7 +2,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -13,9 +17,31 @@ public class ButtonClass extends JButton
 	private static final Font smallFont = new Font("Verdana", Font.BOLD, 20);
 	private static final Color numbersBgColor = new Color(48, 50, 52);
 	private static final Color specialBgColor = new Color(175, 143, 233);
+	private String text;
+	private final Clip sound = createSound();
+	
+	private Clip createSound()
+	{
+		Clip clip = null;
+		
+		try
+		{
+			clip = AudioSystem.getClip();
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new File("C:\\eclipse proj\\GUICalculator\\1.wav"));
+			clip.open(ais);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		return clip;
+	}
+	
 	//private static final Color borderColor = new Color(8, 2, 36);
 	
 	private float alphaValue;
+	private Thread thread;
 	/* TODO
 	 * Set different background colors depending on the button
 	 * 
@@ -34,8 +60,9 @@ public class ButtonClass extends JButton
 		MainClass.buttonPanel.repaint();
 	}
 	 
-	ButtonClass(String text)
+	ButtonClass(String name)
 	{
+		this.text = name;
 		this.setText(text);
 		this.setFont(ButtonClass.smallFont);
 		UIManager.getDefaults().put("Button.disabledText",Color.WHITE);
@@ -70,12 +97,40 @@ public class ButtonClass extends JButton
 		{
 		    public void mouseEntered(MouseEvent evt) 
 		    {
+		    	// starts a thread that plays a sound effect after one second of the user entering a button
+		    	thread = new Thread(){
+		    		@Override
+		    	    public void run(){
+		    			try {
+							//URL url = new URL("https://voca.ro/1mR9bMnykGLS"); // http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/alien_hit.wav
+							
+						       try {
+						    	   Thread.sleep(800);
+							       System.out.println("Thread Run By:" + text);
+							       
+							       // need to fix the sound not working on the same button again
+							       sound.start();
+					            }
+					            catch (InterruptedException e) {
+
+					            }
+
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+		    	    }
+		    	  };
+		    	thread.start();
+		        
 		    	setBorder(BorderFactory.createLineBorder(Color.WHITE));
 		    	setOpacity(alphaValue + 0.2f);
 		    }
 
 		    public void mouseExited(MouseEvent evt) 
 		    {
+		    	// interrupts the sound from being played
+		    	thread.interrupt();
 		    	setBorder(BorderFactory.createLoweredBevelBorder());
 		    	setOpacity(alphaValue);
 		    }
