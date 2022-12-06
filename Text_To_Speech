@@ -1,0 +1,24 @@
+import java.util.ArrayList;
+
+public class Text_to_Speech_Class {
+
+	private final static String[] numbers = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
+			"thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety", "hundred", "thousand", "million", "billion", "trillion"};
+	
+	public static void main(String[] args) {
+		
+		ArrayList <String> words = new ArrayList<String>();
+		
+		String text = "two million three thousand one hundred thirty three ";
+		
+		// finds all the words in the string and stores them in a list
+		while(text.length() > 0)
+		{
+			words.add(text.substring(0, text.indexOf(' ')));
+			text = text.substring(text.indexOf(' ') + 1, text.length());
+		}
+		for(String i : words)
+			System.out.println(i);
+	}
+}
