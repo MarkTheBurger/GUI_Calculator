@@ -202,7 +202,6 @@ public class MainClass
 					case "-":
 					case "*":
 					case "/":
-					case ".":
 					case "!":
 					case "^":
 						
@@ -247,6 +246,23 @@ public class MainClass
 								outputField.setText(outputField.getText() + "(");
 							else
 								outputField.setText(outputField.getText() + "*(");
+						}
+					break;
+					
+					case ".":
+						try // if the previous character is an operator, add (0.)
+						{
+							Integer.parseInt(Character.toString(previousChar));
+							
+							if(outputField.getText().contains("."));
+							{
+								
+							}
+						}
+						catch (Exception e)
+						{
+							if(previousChar != '.')
+								outputField.setText(outputField.getText() + "0.");
 						}
 					break;
 					
@@ -456,6 +472,9 @@ public class MainClass
 						yield String.valueOf(x*y);
 						
 					case "/":
+						if(y == 0)
+							yield "0";
+						
 						yield String.valueOf(x/y);
 						
 					case "^":
