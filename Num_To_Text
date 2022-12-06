@@ -1,13 +1,12 @@
-
 public class Number_To_Text_Class {
 
-	private final static String[] numbers = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+	private final static String[] numbers = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
 			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"};
 	static String tens[] = {"ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty","ninety"};
-    static String thousands[] = {"","thousand", "million", "billion", "trillion"};
+    static String thousands[] = {"thousand", "million", "billion", "trillion"};
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		int num = 123456;
+		double num = 1123456.36;
 		
 		textToNum(String.valueOf(num));
 		
@@ -18,9 +17,17 @@ public class Number_To_Text_Class {
 		// integer that tracks the magnitude of the number (0 - hundred, 1 - thousand, 2 - million)
 		int magnitude = 0;
 		
+		String decimals = "";
+		
+		// separates the whole numbers from the decimals
+		if(num.indexOf('.') != -1)
+		{
+			decimals = num.substring(num.indexOf('.') + 1, num.length());
+			num = num.substring(0, num.indexOf('.'));
+		}
+		
 		if(num == "0")
 			return "zero ";
-		
 		
 		for(int i = num.length()-1; i >= 0; i--)
 		{
@@ -36,7 +43,7 @@ public class Number_To_Text_Class {
 						out = true;
 				
 				if(!out)
-					total = thousands[magnitude] + " " + total;
+					total = thousands[magnitude - 1] + " " + total;
 			}
 			magnitude++;
 			
@@ -53,30 +60,29 @@ public class Number_To_Text_Class {
 				else if(number1 != 0 && number2 != 0)
 				{
 					if(number1 * 10 + number2 <= 19)// if the number is unique
-						total = numbers[number1 * 10 + number2 - 1] + " " + total;
+						total = numbers[number1 * 10 + number2] + " " + total;
 					else // split the number into a tens and a num
-						total = tens[number1 - 1] + " " + numbers[number2 - 1] + " " + total;
+						total = tens[number1 - 1] + " " + numbers[number2] + " " + total;
 				}
 				else if(number2 != 0 && number1 == 0)
-					total = numbers[number2 - 1] + " " + total;
+					total = numbers[number2] + " " + total;
 			}
 			else
 			{
-				int current = Integer.parseInt(Character.toString(total.charAt(i)));
+				int current = Integer.parseInt(Character.toString(num.charAt(i)));
 				if(current != 0)
-					total = numbers[current - 1] + " " + total;
+					total = numbers[current] + " " + total;
 			}
 			
 			// if the third number exists in a string ( 1 in 120, 3 in 340, etc)
 			if(i-2 >= 0)
 			{
 				threeNums = true;
-				System.out.println(total.charAt(i-2));
 				
 				int current = Integer.parseInt(Character.toString(num.charAt(i-2)));
 				
 				if(current != 0)
-					total = numbers[current-1] + " hundred " + total;
+					total = numbers[current] + " hundred " + total;
 			}
 			
 			if(threeNums)
@@ -84,7 +90,17 @@ public class Number_To_Text_Class {
 			else if(twoNums)
 				i--;
 		}
+		
+		// adds all the decimal values, if present, to the end of the string
+		if(decimals.length() > 0)
+		{
+			total += ("point ");
+			for(int i = 0; i < decimals.length(); i++)
+				total += numbers[Integer.parseInt(Character.toString(decimals.charAt(i)))] + " ";
+		} 
+		
 		System.out.println(total);
+		
 		return total;
 	}
 }
