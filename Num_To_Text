@@ -1,13 +1,20 @@
+import java.awt.Dimension;
+
+import javax.swing.JFrame;
+
 public class Number_To_Text_Class {
 
 	private final static String[] numbers = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
 			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"};
 	static String tens[] = {"ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty","ninety"};
     static String thousands[] = {"thousand", "million", "billion", "trillion"};
+    
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		double num = 1123456.36;
-		
+		double num = 1385.429;
+		JFrame f = new JFrame();
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setSize(new Dimension(400,400));
+		f.setVisible(true);
 		textToNum(String.valueOf(num));
 		
 	}
