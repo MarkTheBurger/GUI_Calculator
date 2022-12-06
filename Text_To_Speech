@@ -2,9 +2,21 @@ import java.util.ArrayList;
 
 public class Text_to_Speech_Class {
 
-	private final static String[] numbers = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
-			"thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety", "hundred", "thousand", "million", "billion", "trillion"};
+	private final static String[] numbers = {"zero","one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", 
+			"twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
+			"hundred", "thousand", "million", "billion", "trillion"};
+	private final static String[] soundLocations = createSounds();
+	
+	private static String[] createSounds()
+	{
+		ArrayList <String> sounds = new ArrayList<String>();
+		
+		for(int i = 0; i < 19; i++)
+			sounds.add("C:\\eclipse proj\\" + i);
+		
+		return (String[]) sounds.toArray();
+	}
 	
 	public static void main(String[] args) {
 		
@@ -18,7 +30,13 @@ public class Text_to_Speech_Class {
 			words.add(text.substring(0, text.indexOf(' ')));
 			text = text.substring(text.indexOf(' ') + 1, text.length());
 		}
+		
 		for(String i : words)
-			System.out.println(i);
+			for(int j = 0; j < numbers.length; j++)
+				if(i.contentEquals(numbers[j]))
+				{
+					System.out.println(numbers[j]);
+					break;
+				}
 	}
 }
