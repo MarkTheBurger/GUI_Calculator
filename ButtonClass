@@ -19,52 +19,60 @@ public class ButtonClass extends JButton
 	private static final Color numbersBgColor = new Color(48, 50, 52);
 	private static final Color specialBgColor = new Color(175, 143, 233);
 	private String text;
-	
+	/*
 	private final static String[] numbers = {"zero","one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
 			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", 
 			"twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
 			"hundred", "thousand", "million", "billion", "trillion", "point"};
-	private final static String[] soundLocations = createSounds();
+			*/
+	private float alphaValue;
+	private Thread thread;
+	private String soundFile;
+	private Clip sound;
 	
-	private static String[] createSounds()
+	@SuppressWarnings("preview")
+	private void createSoundFile()
 	{
-		ArrayList <String> sounds = new ArrayList<String>();
+		/*
+		 * {"2nd", "sin", "cos", "tan", "π"}, 
+			{"deg", "ln(x)", "lg(x)", "(", ")"},
+			{"EXP", "C", "DEL", "√", "÷"},
+			{"x^y", "7", "8", "9", "x"}, 
+			{"|x|", "4", "5", "6", "-"}, 
+			{"x!", "1", "2", "3", "+"}, 
+			{"mode", "e", "0", ".", "="}};
+		 */
 		
-		for(int i = 0; i < numbers.length; i++)
-			sounds.add("C:\\eclipse proj\\GUICalculator\\sound\\" + numbers[i]);
 		
-		return sounds.toArray(new String[sounds.size()]);
+		soundFile = "C:\\eclipse proj\\GUICalculator\\sound\\" + switch(text)
+		{
+			case "1":
+				yield "one";
+				
+			case "2":
+				yield "two";
+			
+			default:
+				yield "zero";
+		};
+		
+		soundFile += ".wav";
 	}
 	
-	private final Clip sound = createSound();
-	
-	private Clip createSound()
+	private void createSound()
 	{
-		Clip clip = null;
-		
 		try
 		{
-			clip = AudioSystem.getClip();
-			AudioInputStream ais = AudioSystem.getAudioInputStream(new File("C:\\eclipse proj\\GUICalculator\\sound\\one.wav"));
-			clip.open(ais);
+			sound = AudioSystem.getClip();
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(soundFile));
+			sound.open(ais);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		
-		return clip;
 	}
 	
-	//private static final Color borderColor = new Color(8, 2, 36);
-	
-	private float alphaValue;
-	private Thread thread;
-	/* TODO
-	 * Set different background colors depending on the button
-	 * 
-	*/
-
 
 	public void setOpacity(float opacity) 
 	{
@@ -85,6 +93,8 @@ public class ButtonClass extends JButton
 		this.setFont(ButtonClass.smallFont);
 		UIManager.getDefaults().put("Button.disabledText",Color.WHITE);
 		this.setEnabled(false);
+		this.createSoundFile();
+		this.createSound();
 		
 		try
 		{
@@ -97,7 +107,7 @@ public class ButtonClass extends JButton
 		{
 			if(text.equals("=") || text.equals("mode") || text.equals("deg") || text.equals("2nd"))
 			{
-				this.setBackground(new Color(255, 140, 0));//new Color(237, 171, 239)
+				this.setBackground(new Color(255, 140, 0));
 				alphaValue = 0.8f;
 			}
 			else
@@ -108,36 +118,19 @@ public class ButtonClass extends JButton
 		}
 		
 		this.setOpacity(alphaValue);
-		this.setBorder(BorderFactory.createLoweredBevelBorder()); //BorderFactory.createLineBorder(ButtonClass.borderColor)
+		this.setBorder(BorderFactory.createLoweredBevelBorder());
 		
 		
 		this.addMouseListener(new MouseAdapter() 
 		{
 		    public void mouseEntered(MouseEvent evt) 
 		    {
-		    	// starts a thread that plays a sound effect after one second of the user entering a button
-		    	thread = new Thread(){
-		    		@Override
-		    	    public void run(){
-		    			try {   
-				    	   Thread.sleep(1000);
-					       sound.start(); // play the sound
-					       sound.setFramePosition(0); // rewind to the beginning
-						} catch (Exception e) {
-
-						}
-		    	    }
-		    	  };
-		    	thread.start();
-		        
 		    	setBorder(BorderFactory.createLineBorder(Color.WHITE));
 		    	setOpacity(alphaValue + 0.2f);
 		    }
 
 		    public void mouseExited(MouseEvent evt) 
 		    {
-		    	// interrupts the sound from being played
-		    	thread.interrupt();
 		    	setBorder(BorderFactory.createLoweredBevelBorder());
 		    	setOpacity(alphaValue);
 		    }
@@ -162,10 +155,20 @@ public class ButtonClass extends JButton
                 	}
                 		MainClass.buttonPanel.repaint();
                 	
-                } else if (arg0.getButton() == MouseEvent.BUTTON2){
-                    System.out.println("Middle button clicked");
                 } else if (arg0.getButton() == MouseEvent.BUTTON3) {
-                    System.out.println("Right button clicked");
+                	// starts a thread that plays a sound effect after one second of the user entering a button
+    		    	thread = new Thread(){
+    		    		@Override
+    		    	    public void run(){
+    		    			try {   
+    					       sound.start(); // play the sound
+    					       sound.setFramePosition(0); // rewind to the beginning
+    						} catch (Exception e) {
+
+    						}
+    		    	    }
+    		    	  };
+    		    	thread.start();
                 } 
             }
 		});
