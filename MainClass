@@ -138,7 +138,6 @@ public class MainClass
 		@Override
 		public void keyPressed(KeyEvent e) // Invoked when a physical key is pressed down. Uses KeyCode, int output
 		{
-			//updateOperationField("√0");
 			if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
 				deleteCharacter();
 			else if(e.getKeyCode() == KeyEvent.VK_ENTER)
@@ -175,7 +174,6 @@ public class MainClass
 		}
 		catch(Exception exception) // an operator had been entered
 		{
-			// TODO: special case for the equals sign
 			// If the input line is empty and a special function is entered
 			if(outputField.getText().equals("0"))
 			{
@@ -319,6 +317,9 @@ public class MainClass
 			while(hasOperators(text))
 				text = brackets(text);
 			
+			if(text.indexOf('.') != -1 && text.indexOf('.') + 3 <= text.length()) // crops all the decimal places except the first four
+				text = text.substring(0, text.indexOf('.') + 5);
+			
 			if(!text.contentEquals(""))
 				operationField.setText("= " + text);
 			else
@@ -450,7 +451,7 @@ public class MainClass
 			if(arrIndex != -1 && operatorsIndexes.get(arrIndex) < text.length()-1)
 			{
 				int start, end;
-				double x, y;
+				double x = 0, y = 0;
 				
 				// if the operator is the first one, start from the beginning of the string`
 				if(arrIndex == 0)
@@ -464,15 +465,11 @@ public class MainClass
 				else // end with the next available operator
 					end = operatorsIndexes.get(arrIndex + 1);
 
-				// if the operator is the first item in the string (like a square root, sin, cos, etc.)
-				if(start == 0 && operatorsIndexes.get(arrIndex) == 0)
-					x = 0;
-				else
+				// when the operator is a square root, whatever number is in front of it doesn't matter
+				if(!operator.contentEquals("√"))
 					x = Double.parseDouble(text.substring(start, operatorsIndexes.get(arrIndex)));
 				
 				y = Double.parseDouble(text.substring(operatorsIndexes.get(arrIndex) + 1, end));
-				
-				
 				String result = switch (operator)
 				{
 					case "+":
@@ -504,6 +501,10 @@ public class MainClass
 				};
 
 				StringBuilder temp = new StringBuilder(text);
+				// removes the standart ".0" associated with a double as a result
+				if(result.endsWith(".0"))
+					result = result.substring(0, result.length()-2);
+				
 				temp.replace(start, end, result);
 				text = temp.toString();
 			}
