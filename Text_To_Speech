@@ -56,6 +56,7 @@ public class Text_to_Speech_Class {
 							}
 							catch (Exception e)
 							{
+								System.out.println(getClass() + ": Couldn't play audio!");
 								e.printStackTrace();
 							}
 							
