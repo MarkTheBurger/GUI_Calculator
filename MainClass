@@ -36,8 +36,8 @@ public class MainClass
 	private static ArrayList<String> operatorsNames;
 	
 	private static JFrame f;
-	private static JLabel operationField;
 	private static JLabel outputField;
+	private static JLabel inputField;
 	public static JPanel buttonPanel;
 	private static boolean scientificMode = false;
 	private static boolean accessibilityMode = true;
@@ -45,19 +45,6 @@ public class MainClass
 
 	public static void main(String[] args) 
 	{
-		/*
-		try
-        {
-        	// Adjusts the program's components to be of the same design language as the operating system that the program runs on
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            JFrame.setDefaultLookAndFeelDecorated(true);
-        }
-        catch (Exception e)
-        {
-            JOptionPane.showMessageDialog(null, "UIManager failed to load the setLookAndFeel method!", "Error!", JOptionPane.ERROR_MESSAGE);
-        }
-		*/
-		
 		new MainClass();
 	}
 	
@@ -100,20 +87,30 @@ public class MainClass
 		JPanel topPanel = new JPanel(new BorderLayout());
 		buttonPanel = new JPanel();
 		
-		outputField = new JLabel("0", SwingConstants.RIGHT);
-		outputField.setFont(titleFont);
+		inputField = new JLabel("0", SwingConstants.RIGHT);
+		inputField.setFont(titleFont);
+		inputField.setOpaque(true);
+		inputField.setBackground(bgColor);
+		inputField.setForeground(Color.WHITE);
+		/*
+		JScrollPane inputFieldScroll = new JScrollPane(outputField, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		inputFieldScroll.setBorder(BorderFactory.createEmptyBorder());
+		*/
+		
+		outputField = new JLabel(" ", SwingConstants.RIGHT);
+		outputField.setFont(smallFont);
 		outputField.setOpaque(true);
 		outputField.setBackground(bgColor);
 		outputField.setForeground(Color.WHITE);
 		
-		operationField = new JLabel(" ", SwingConstants.RIGHT);
-		operationField.setFont(smallFont);
-		operationField.setOpaque(true);
-		operationField.setBackground(bgColor);
-		operationField.setForeground(Color.WHITE);
+		/*
+		JScrollPane inputFieldScroll = new JScrollPane(outputField, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		inputFieldScroll.setBorder(BorderFactory.createEmptyBorder());
+		*/
 		
-		topPanel.add(outputField, BorderLayout.NORTH);
-		topPanel.add(operationField, BorderLayout.CENTER);
+		
+		topPanel.add(inputField, BorderLayout.NORTH);
+		topPanel.add(outputField, BorderLayout.CENTER);
 		
 		buttonPanel.setBackground(bgColor);
 		
@@ -138,12 +135,19 @@ public class MainClass
 		@Override
 		public void keyPressed(KeyEvent e) // Invoked when a physical key is pressed down. Uses KeyCode, int output
 		{
+			//updateOperationField("55555^5");
 			if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+			{
+				setAnswerMode(false);
 				deleteCharacter();
+			}	
 			else if(e.getKeyCode() == KeyEvent.VK_ENTER)
 				updateForButtons("=");
 			else if(validInput(e.getKeyCode()))
+			{
+				setAnswerMode(false);
 				addCharacter(Character.toString(e.getKeyChar()));
+			}
 		}
 
 		@Override
@@ -155,9 +159,9 @@ public class MainClass
 	static void deleteCharacter()
 	{
 		// deletes the last character entered by the user
-		String adjustedText = outputField.getText().length() > 1 ? outputField.getText().substring(0, outputField.getText().length()-1) : "0";
-		outputField.setText(adjustedText);
-		updateOperationField(outputField.getText());
+		String adjustedText = inputField.getText().length() > 1 ? inputField.getText().substring(0, inputField.getText().length()-1) : "0";
+		inputField.setText(adjustedText);
+		updateOperationField(inputField.getText());
 	}
 	
 	static void addCharacter(String text)
@@ -168,14 +172,14 @@ public class MainClass
 			Integer.parseInt(text);
 			
 			// either replaces the initial 0 with a number or appends the number to the string
-			String adjustedText = outputField.getText().equals("0") ? text : outputField.getText() + text;
+			String adjustedText = inputField.getText().equals("0") ? text : inputField.getText() + text;
 			
-			outputField.setText(adjustedText);
+			inputField.setText(adjustedText);
 		}
 		catch(Exception exception) // an operator had been entered
 		{
 			// If the input line is empty and a special function is entered
-			if(outputField.getText().equals("0"))
+			if(inputField.getText().equals("0"))
 			{
 				switch(text)
 				{
@@ -186,16 +190,16 @@ public class MainClass
 					case ".":
 					case "!":
 					case "^":
-						outputField.setText("0" + text);
+						inputField.setText("0" + text);
 					break;
 					
 					default:
-						outputField.setText(text);
+						inputField.setText(text);
 				}
 			}
 			else // when there are already numbers/operators entered in the input line of the calculator
 			{
-				char previousChar = outputField.getText().charAt(outputField.getText().length()-1);
+				char previousChar = inputField.getText().charAt(inputField.getText().length()-1);
 				
 				switch(text)
 				{
@@ -210,14 +214,14 @@ public class MainClass
 						{
 							Integer.parseInt(Character.toString(previousChar));
 							
-							outputField.setText(outputField.getText() + text);
+							inputField.setText(inputField.getText() + text);
 						}
 						catch(Exception e)
 						{ 	// if the last character in the calculator string was an operator (with an exception of the closed bracket), a new operator replaces the previous one
 							if(previousChar == ')' || previousChar == '!')
-								outputField.setText(outputField.getText() + text);
+								inputField.setText(inputField.getText() + text);
 							else
-								outputField.setText(outputField.getText().substring(0, outputField.getText().length()-1) + text);
+								inputField.setText(inputField.getText().substring(0, inputField.getText().length()-1) + text);
 						}
 					break;
 					
@@ -226,12 +230,12 @@ public class MainClass
 						{
 							Integer.parseInt(Character.toString(previousChar));
 							
-							outputField.setText(outputField.getText() + ")");
+							inputField.setText(inputField.getText() + ")");
 						}
 						catch(Exception e)
 						{
 							if(previousChar != ')')
-								outputField.setText(outputField.getText() + "0)");
+								inputField.setText(inputField.getText() + "0)");
 						}
 					break;
 					
@@ -239,14 +243,14 @@ public class MainClass
 						try
 						{
 							Integer.parseInt(Character.toString(previousChar));
-							outputField.setText(outputField.getText() + "*(");
+							inputField.setText(inputField.getText() + "*(");
 						}
 						catch (Exception e)
 						{
 							if(previousChar != ')')
-								outputField.setText(outputField.getText() + "(");
+								inputField.setText(inputField.getText() + "(");
 							else
-								outputField.setText(outputField.getText() + "*(");
+								inputField.setText(inputField.getText() + "*(");
 						}
 					break;
 					
@@ -255,22 +259,22 @@ public class MainClass
 						{
 							Integer.parseInt(Character.toString(previousChar));
 							
-							if(!outputField.getText().contains("."))
-								outputField.setText(outputField.getText() + ".");
+							if(!inputField.getText().contains("."))
+								inputField.setText(inputField.getText() + ".");
 							else
 							{
-								for(int i = outputField.getText().length() - 1; i >= 0; i --)
+								for(int i = inputField.getText().length() - 1; i >= 0; i --)
 								{
-									if(outputField.getText().charAt(i) == '.')
+									if(inputField.getText().charAt(i) == '.')
 										break;
 									
 									try 
 									{
-										Integer.parseInt(Character.toString(outputField.getText().charAt(i)));
+										Integer.parseInt(Character.toString(inputField.getText().charAt(i)));
 									}
 									catch(Exception e)
 									{
-										outputField.setText(outputField.getText() + ".");
+										inputField.setText(inputField.getText() + ".");
 										break;
 									}
 								}
@@ -279,37 +283,23 @@ public class MainClass
 						catch (Exception e)
 						{
 							if(previousChar != '.') // if the previous character is an operator, add (0.)
-								outputField.setText(outputField.getText() + "0.");
+								inputField.setText(inputField.getText() + "0.");
 						}
 					break;
 					
 					default:
-						outputField.setText(outputField.getText() + "*" + text);
+						inputField.setText(inputField.getText() + "*" + text);
 				}
 			}
 		}
-		updateOperationField(outputField.getText());
-	}
-	
-	 static void setAnswerMode(boolean answerMode)
-	{
-		if(answerMode)
-		{
-			operationField.setFont(titleFont);
-			outputField.setFont(smallFont);
-		}
-		else
-		{
-			operationField.setFont(smallFont);
-			outputField.setFont(titleFont);
-		}
+		updateOperationField(inputField.getText());
 	}
 	
 	static void updateOperationField(String text)
 	{
 		if(Objects.equals(text, "0"))
 		{
-			operationField.setText(" ");
+			outputField.setText(" ");
 		}
 		else // Evaluate the answer
 		{
@@ -317,13 +307,18 @@ public class MainClass
 			while(hasOperators(text))
 				text = brackets(text);
 			
-			if(text.indexOf('.') != -1 && text.indexOf('.') + 3 <= text.length()) // crops all the decimal places except the first four
-				text = text.substring(0, text.indexOf('.') + 5);
+			if(text.indexOf('.') != -1 && text.indexOf('.') + 3 <= text.length()) 
+			{
+				if(text.contains("E"))
+					text = text.substring(0, text.indexOf('.') + 5) + text.substring(text.indexOf('E')); // crops all the decimal places except the first four + leaves 'E'
+				else	
+					text = text.substring(0, text.indexOf('.') + 5); // crops all the decimal places except the first four
+			}	
 			
 			if(!text.contentEquals(""))
-				operationField.setText("= " + text);
+				outputField.setText("= " + text);
 			else
-				operationField.setText(" ");
+				outputField.setText(" ");
 		}
 	}
 	
@@ -348,7 +343,7 @@ public class MainClass
 			}
 			catch (Exception e)
 			{
-				if(text.charAt(i) != '.')
+				if(text.charAt(i) != '.' && text.charAt(i) != 'E')
 					return true;
 			}
 		}
@@ -379,7 +374,7 @@ public class MainClass
 			}
 			catch (Exception e)
 			{
-				if(text.charAt(i) != '.')
+				if(text.charAt(i) != '.' && text.charAt(i) != 'E')
 				{
 					operatorsIndexes.add(i);
 					operatorsNames.add(Character.toString(text.charAt(i)));
@@ -554,8 +549,8 @@ public class MainClass
 				// if the equal sign is pressed, enter the 'answer' mode
 				setAnswerMode(true);
 				
-				if(accessibilityMode && !operationField.getText().contentEquals(" "))
-					new Number_To_Text_Class(operationField.getText().substring(2));
+				if(accessibilityMode && !outputField.getText().contentEquals(" "))
+					new Number_To_Text_Class(outputField.getText().substring(2));
 			break;
 			
 			case "DEL":
@@ -563,8 +558,8 @@ public class MainClass
 			break;
 			
 			case "C":
-				outputField.setText("0");
-				updateOperationField(outputField.getText());
+				inputField.setText("0");
+				updateOperationField(inputField.getText());
 			break;
 				
 			case "mode": // switches the calculator modes
@@ -611,6 +606,20 @@ public class MainClass
 		}
 			
 		f.requestFocus();
+	}
+	
+	static void setAnswerMode(boolean answerMode)
+	{
+		if(answerMode)
+		{
+			outputField.setFont(titleFont);
+			inputField.setFont(smallFont);
+		}
+		else
+		{
+			outputField.setFont(smallFont);
+			inputField.setFont(titleFont);
+		}
 	}
 	
 	// Function responsible for button render depending on the calculator mode currently set (normal vs scientific)
