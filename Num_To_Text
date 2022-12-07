@@ -1,24 +1,16 @@
-import java.awt.Dimension;
-
-import javax.swing.JFrame;
-
 public class Number_To_Text_Class {
 
 	private final static String[] numbers = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
 			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"};
-	static String tens[] = {"ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty","ninety"};
-    static String thousands[] = {"thousand", "million", "billion", "trillion"};
+	static final String tens[] = {"ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty","ninety"};
+    static final String thousands[] = {"thousand", "million", "billion", "trillion"};
     
-	public static void main(String[] args) {
-		double num = 1385.429;
-		JFrame f = new JFrame();
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setSize(new Dimension(400,400));
-		f.setVisible(true);
-		textToNum(String.valueOf(num));
-		
+	Number_To_Text_Class(String num)
+	{
+		new Text_to_Speech_Class(textToNum(num));
 	}
-	private static String textToNum(String num)
+	
+	private String textToNum(String num)
 	{
 		String total = "";
 		// integer that tracks the magnitude of the number (0 - hundred, 1 - thousand, 2 - million)
@@ -105,8 +97,6 @@ public class Number_To_Text_Class {
 			for(int i = 0; i < decimals.length(); i++)
 				total += numbers[Integer.parseInt(Character.toString(decimals.charAt(i)))] + " ";
 		} 
-		
-		System.out.println(total);
 		
 		return total;
 	}
