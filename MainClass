@@ -40,6 +40,7 @@ public class MainClass
 	private static JLabel outputField;
 	public static JPanel buttonPanel;
 	private static boolean scientificMode = false;
+	private static boolean accessibilityMode = true;
 	private static boolean degrees = true;
 
 	public static void main(String[] args) 
@@ -140,6 +141,8 @@ public class MainClass
 			//updateOperationField("√0");
 			if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
 				deleteCharacter();
+			else if(e.getKeyCode() == KeyEvent.VK_ENTER)
+				updateForButtons("=");
 			else if(validInput(e.getKeyCode()))
 				addCharacter(Character.toString(e.getKeyChar()));
 		}
@@ -250,18 +253,34 @@ public class MainClass
 					break;
 					
 					case ".":
-						try // if the previous character is an operator, add (0.)
+						try 
 						{
 							Integer.parseInt(Character.toString(previousChar));
 							
-							if(outputField.getText().contains("."));
+							if(!outputField.getText().contains("."))
+								outputField.setText(outputField.getText() + ".");
+							else
 							{
-								
+								for(int i = outputField.getText().length() - 1; i >= 0; i --)
+								{
+									if(outputField.getText().charAt(i) == '.')
+										break;
+									
+									try 
+									{
+										Integer.parseInt(Character.toString(outputField.getText().charAt(i)));
+									}
+									catch(Exception e)
+									{
+										outputField.setText(outputField.getText() + ".");
+										break;
+									}
+								}
 							}
 						}
 						catch (Exception e)
 						{
-							if(previousChar != '.')
+							if(previousChar != '.') // if the previous character is an operator, add (0.)
 								outputField.setText(outputField.getText() + "0.");
 						}
 					break;
@@ -412,12 +431,6 @@ public class MainClass
 		else
 			textInBrackets = initialText.substring(openBracketIndex + 1, closedBracketIndex);
 		 
-		/*
-		operatorsIndexes.remove(operatorsNames.indexOf("("));
-		operatorsNames.remove(operatorsNames.indexOf("("));
-		operatorsIndexes.remove(operatorsNames.indexOf(")"));
-		operatorsNames.remove(operatorsNames.indexOf(")"));
-		*/
 		// the 'brackets' function calls on itself to check for more brackets
 		// adjust (wrong)
 		StringBuffer buf = new StringBuffer(initialText);
@@ -537,8 +550,11 @@ public class MainClass
 		switch(text)
 		{
 			case "=":
-			// if the equal sign is pressed, enter the 'answer' mode
+				// if the equal sign is pressed, enter the 'answer' mode
 				setAnswerMode(true);
+				
+				if(accessibilityMode && !operationField.getText().contentEquals(" "))
+					new Number_To_Text_Class(operationField.getText().substring(2));
 			break;
 			
 			case "DEL":
