@@ -1,13 +1,11 @@
-import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.swing.JFrame;
 
 public class Text_to_Speech_Class {
 
-	private final static String[] numbers = {"zero","one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+	private final static String[] allNums = {"zero","one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
 			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", 
 			"twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
 			"hundred", "thousand", "million", "billion", "trillion", "point"};
@@ -18,22 +16,21 @@ public class Text_to_Speech_Class {
 	{
 		ArrayList <String> sounds = new ArrayList<String>();
 		
-		for(int i = 0; i < numbers.length; i++)
-			sounds.add("C:\\eclipse proj\\GUICalculator\\sound\\" + numbers[i] + ".wav");
+		for(int i = 0; i < allNums.length; i++)
+			sounds.add("C:\\eclipse proj\\GUICalculator\\sound\\" + allNums[i] + ".wav");
 		
 		return sounds.toArray(new String[sounds.size()]);
 	}
 	
-	public static void main(String[] args) {
-		
-		JFrame f = new JFrame();
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setSize(new Dimension(400,400));
-		f.setVisible(true);
-		
+	Text_to_Speech_Class(String text)
+	{
+		readResult(text);
+	}
+	
+	public void readResult(String text) {
 		ArrayList <String> words = new ArrayList<String>();
 		
-		String text = "two million three thousand one hundred thirty three point three six ";
+		//String text = "two million three thousand one hundred thirty three point three six ";
 		
 		
 		// finds all the words in the string and stores them in a list
@@ -48,9 +45,9 @@ public class Text_to_Speech_Class {
     	    public void run(){
 				for(String i : words)
 				{
-					for(int j = 0; j < numbers.length; j++)
+					for(int j = 0; j < allNums.length; j++)
 					{
-						if(i.contentEquals(numbers[j]))
+						if(i.contentEquals(allNums[j]))
 						{
 							try
 							{
@@ -66,10 +63,9 @@ public class Text_to_Speech_Class {
 							
 							
 							try {
-								Thread.sleep(700);
+								Thread.sleep(900);
 							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								
 							}
 							break;
 						}
