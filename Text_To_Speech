@@ -3,12 +3,14 @@ import java.util.ArrayList;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
+// Voices the words given by the Number_To_Text_Class
+
 public class Text_to_Speech_Class {
 
 	private final static String[] allNums = {"zero","one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
 			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", 
 			"twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
-			"hundred", "thousand", "million", "billion", "trillion", "point"};
+			"hundred", "thousand", "million", "billion", "trillion", "point", "E"};
 	private final static String[] soundLocations = createSounds();
 	private static Clip clip;
 	
@@ -29,9 +31,6 @@ public class Text_to_Speech_Class {
 	
 	public void readResult(String text) {
 		ArrayList <String> words = new ArrayList<String>();
-		
-		//String text = "two million three thousand one hundred thirty three point three six ";
-		
 		
 		// finds all the words in the string and stores them in a list
 		while(text.length() > 0)
@@ -62,9 +61,13 @@ public class Text_to_Speech_Class {
 							
 							clip.start(); // play the sound
 							
-							
 							try {
-								Thread.sleep(900);
+								// gives a longer pause to 'E' and the last word of the string
+								if(allNums[j] == "E" || i.contentEquals(words.get(words.size()-1)))
+									Thread.sleep(3000);
+								else
+									Thread.sleep(800);
+								
 							} catch (InterruptedException e) {
 								
 							}
