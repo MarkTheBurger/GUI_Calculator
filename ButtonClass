@@ -3,8 +3,6 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -15,64 +13,13 @@ import javax.swing.UIManager;
 
 public class ButtonClass extends JButton
 {	
-	private static final Font smallFont = new Font("Verdana", Font.BOLD, 20);
+	private static final Font smallFont = new Font("Verdana", Font.BOLD, 24);
 	private static final Color numbersBgColor = new Color(48, 50, 52);
 	private static final Color specialBgColor = new Color(175, 143, 233);
+	
 	private String text;
-	/*
-	private final static String[] numbers = {"zero","one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-			"eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", 
-			"twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
-			"hundred", "thousand", "million", "billion", "trillion", "point"};
-			*/
 	private float alphaValue;
-	private Thread thread;
-	private String soundFile;
 	private Clip sound;
-	
-	@SuppressWarnings("preview")
-	private void createSoundFile()
-	{
-		/*
-		 * {"2nd", "sin", "cos", "tan", "π"}, 
-			{"deg", "ln(x)", "lg(x)", "(", ")"},
-			{"EXP", "C", "DEL", "√", "÷"},
-			{"x^y", "7", "8", "9", "x"}, 
-			{"|x|", "4", "5", "6", "-"}, 
-			{"x!", "1", "2", "3", "+"}, 
-			{"mode", "e", "0", ".", "="}};
-		 */
-		
-		
-		soundFile = "C:\\eclipse proj\\GUICalculator\\sound\\" + switch(text)
-		{
-			case "1":
-				yield "one";
-				
-			case "2":
-				yield "two";
-			
-			default:
-				yield "zero";
-		};
-		
-		soundFile += ".wav";
-	}
-	
-	private void createSound()
-	{
-		try
-		{
-			sound = AudioSystem.getClip();
-			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(soundFile));
-			sound.open(ais);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
 
 	public void setOpacity(float opacity) 
 	{
@@ -93,8 +40,8 @@ public class ButtonClass extends JButton
 		this.setFont(ButtonClass.smallFont);
 		UIManager.getDefaults().put("Button.disabledText",Color.WHITE);
 		this.setEnabled(false);
+		// assigns a sound effect to the button
 		this.createSoundFile();
-		this.createSound();
 		
 		try
 		{
@@ -141,12 +88,16 @@ public class ButtonClass extends JButton
                 	switch(getText())
                 	{
                 		case "deg":
+                			text = "rad";
                 			setText(text);
+                			createSoundFile();
                 			MainClass.updateForButtons(text);
                 		break;
                 			
                 		case "rad":
+                			text = "deg";
                 			setText(text);
+                			createSoundFile();
                 			MainClass.updateForButtons(text);
                 		break;
                 		
@@ -155,24 +106,150 @@ public class ButtonClass extends JButton
                 	}
                 		MainClass.buttonPanel.repaint();
                 	
-                } else if (arg0.getButton() == MouseEvent.BUTTON3) {
-                	// starts a thread that plays a sound effect after one second of the user entering a button
-    		    	thread = new Thread(){
-    		    		@Override
-    		    	    public void run(){
-    		    			try {   
-    					       sound.start(); // play the sound
-    					       sound.setFramePosition(0); // rewind to the beginning
-    						} catch (Exception e) {
+                } else if (arg0.getButton() == MouseEvent.BUTTON3) { // plays a sound effect after the user right-clicks a button in accessibility mode
 
-    						}
-    		    	    }
-    		    	  };
-    		    	thread.start();
+                	if(Intro.getAccessibilityMode())
+                	{
+                		sound.start(); // play the sound
+ 				       	sound.setFramePosition(0); // rewind to the beginning
+                	}
                 } 
             }
 		});
 	}
+	
+	// creates a soundFile specific to the button
+	@SuppressWarnings("preview")
+	private void createSoundFile()
+	{
+		String soundFile = Intro.getFilePath() + switch(text)
+		{
+			case "1":
+				yield "one";
+				
+			case "2":
+				yield "two";
+				
+			case "3":
+				yield "three";
+				
+			case "4":
+				yield "four";
+				
+			case "5":
+				yield "five";
+				
+			case "6":
+				yield "six";
+			
+			case "7":
+				yield "seven";
+				
+			case "8":
+				yield "eight";
+				
+			case "9":
+				yield "nine";
+				
+			case "0":
+				yield "zero";
+				
+			case ".":
+				yield "point";
+				
+			case "C":
+				yield "clear";
+				
+			case "DEL":
+				yield "delete";
+				
+			case "EXP":
+				yield "exp";
+				
+			case "e":
+				yield "e_small";
+				
+			case "x^y":
+				yield "power";
+				
+			case "√":
+				yield "sqrt";
+				
+			case "mode":
+				yield "mode";
+				
+			case "(":
+				yield "open_bracket";
+			
+			case ")":
+				yield "closed_bracket";
+				
+			case "sin":
+				yield "sin";
+				
+			case "cos":
+				yield "cos";
+				
+			case "tan":
+				yield "tan";
+				
+			case "x!":
+				yield "factorial";
+				
+			case "|x|":
+				yield "abs";
+				
+			case "ln(x)":
+				yield "lnx";
+				
+			case "lg(x)":
+				yield "logx";
+				
+			case "π":
+				yield "pi";
+				
+			case "deg":
+				yield "degrees";
+				
+			case "rad":
+				yield "radians";
+				
+			case "2nd":
+				yield "2nd";
+				
+			case "x":
+				yield "multiply";
+				
+			case "÷":
+				yield "divide";
+			
+			case "+":
+				yield "plus";
+				
+			case "-":
+				yield "minus";
+				
+			case "=":
+				yield "equals";
+				
+			default:
+				yield "zero";
+		};
+		
+		soundFile += ".wav";
+		
+		try
+		{
+			sound = AudioSystem.getClip();
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(soundFile));
+			sound.open(ais);
+		}
+		catch (Exception e)
+		{
+			System.out.println(getClass() + ": Failed to load a soundfile at the adress of " + soundFile);
+		}
+	}
+	
 	
 	public JComponent getButton()
 	{
