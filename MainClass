@@ -1,23 +1,34 @@
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-import javax.swing.*;
+import javax.sound.sampled.Clip;
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
-/* TODO
- * 
- */
  
 public class MainClass 
 {
 	private final Color bgColor = new Color(0.031f, 0.00784f, 0.14118f, 1.f);
-	private final static Font titleFont = new Font("Verdana", Font.BOLD, 60);
-	private final static Font smallFont = new Font("Verdana", Font.BOLD, 24);
+	private final static Font titleFont = new Font("Verdana", Font.BOLD, 70);
+	private final static Font smallFont = new Font("Verdana", Font.BOLD, 36);
 	private static final String[][] standartModeButtons = {
-			{"C", "DEL", "%", "÷"}, 
+			{"C", "DEL", "√", "÷"}, 
 			{"7", "8", "9", "x"}, 
 			{"4", "5", "6", "-"}, 
 			{"1", "2", "3", "+"}, 
@@ -40,13 +51,8 @@ public class MainClass
 	private static JLabel inputField;
 	public static JPanel buttonPanel;
 	private static boolean scientificMode = false;
-	private static boolean accessibilityMode = true;
+	private static boolean accessibilityMode = Intro.getAccessibilityMode();
 	private static boolean degrees = true;
-
-	public static void main(String[] args) 
-	{
-		new MainClass();
-	}
 	
 	MainClass()
 	{
@@ -61,12 +67,11 @@ public class MainClass
 	void initializeFrame()
 	{
 		f = new JFrame("Calculator");
-		f.setLayout(new BorderLayout());
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.getContentPane().setBackground(bgColor);
 		
 		// Dynamically scales the application depending on the screen resolution
-		int height = (int)(Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 1.7);
+		int height = (int)(Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 1.5);
 		int width = (int)(height / 1.3);
 		
 		f.setPreferredSize(new Dimension(width, height));
@@ -78,13 +83,19 @@ public class MainClass
 		f.pack();
 		f.setLocationRelativeTo(null);
 		f.setResizable(false);
+		
+		if(accessibilityMode)
+			f.setAlwaysOnTop(true);
+		
 		f.setVisible(true);
 	}
 	
-	Component initializeComponents()
+	private static JScrollPane inputFieldScroll;
+	private static JScrollPane outputFieldScroll;
+	private Component initializeComponents()
 	{
 		JPanel mainPanel = new JPanel(new BorderLayout());
-		JPanel topPanel = new JPanel(new BorderLayout());
+		JPanel topPanel = new JPanel(new GridLayout(2,1));
 		buttonPanel = new JPanel();
 		
 		inputField = new JLabel("0", SwingConstants.RIGHT);
@@ -92,10 +103,10 @@ public class MainClass
 		inputField.setOpaque(true);
 		inputField.setBackground(bgColor);
 		inputField.setForeground(Color.WHITE);
-		/*
-		JScrollPane inputFieldScroll = new JScrollPane(outputField, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		
+		inputFieldScroll = new JScrollPane(inputField, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		inputFieldScroll.setBorder(BorderFactory.createEmptyBorder());
-		*/
+		
 		
 		outputField = new JLabel(" ", SwingConstants.RIGHT);
 		outputField.setFont(smallFont);
@@ -103,14 +114,13 @@ public class MainClass
 		outputField.setBackground(bgColor);
 		outputField.setForeground(Color.WHITE);
 		
-		/*
-		JScrollPane inputFieldScroll = new JScrollPane(outputField, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		inputFieldScroll.setBorder(BorderFactory.createEmptyBorder());
-		*/
+		
+		outputFieldScroll = new JScrollPane(outputField, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		outputFieldScroll.setBorder(BorderFactory.createEmptyBorder());
 		
 		
-		topPanel.add(inputField, BorderLayout.NORTH);
-		topPanel.add(outputField, BorderLayout.CENTER);
+		topPanel.add(inputFieldScroll); //, BorderLayout.NORTH
+		topPanel.add(outputFieldScroll); // , BorderLayout.CENTER
 		
 		buttonPanel.setBackground(bgColor);
 		
@@ -608,6 +618,7 @@ public class MainClass
 		f.requestFocus();
 	}
 	
+	// makes the answer box bigger and the input box smaller when the 'equals' sign is pressed and vice versa
 	static void setAnswerMode(boolean answerMode)
 	{
 		if(answerMode)
