@@ -19,7 +19,7 @@ public class Text_to_Speech_Class {
 		ArrayList <String> sounds = new ArrayList<String>();
 		
 		for(int i = 0; i < allNums.length; i++)
-			sounds.add("C:\\eclipse proj\\GUICalculator\\sound\\" + allNums[i] + ".wav");
+			sounds.add(Intro.getFilePath() + allNums[i] + ".wav");
 		
 		return sounds.toArray(new String[sounds.size()]);
 	}
@@ -62,11 +62,11 @@ public class Text_to_Speech_Class {
 							clip.start(); // play the sound
 							
 							try {
-								// gives a longer pause to 'E' and the last word of the string
-								if(allNums[j] == "E" || i.contentEquals(words.get(words.size()-1)))
+								// gives a longer pause to 'E'
+								if(allNums[j] == "E")
 									Thread.sleep(3000);
 								else
-									Thread.sleep(800);
+									Thread.sleep(700);
 								
 							} catch (InterruptedException e) {
 								
