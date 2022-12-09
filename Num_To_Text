@@ -69,8 +69,7 @@ public class Number_To_Text_Class {
 			else
 			{
 				int current = Integer.parseInt(Character.toString(num.charAt(i)));
-				//if(current != 0)
-					total = numbers[current] + " " + total;
+				total = numbers[current] + " " + total;
 			}
 			
 			// if the third number exists in a string ( 1 in 120, 3 in 340, etc)
