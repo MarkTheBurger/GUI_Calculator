@@ -89,7 +89,6 @@ public class Intro {
 		button.addActionListener(e -> {
 			accessibilityMode = false;
 			sound.stop();
-			playAccessibilityMode();
         	new MainClass();
         	f.dispose();
 		});
