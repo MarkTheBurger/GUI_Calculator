@@ -230,7 +230,9 @@ public class MainClass
 						{ 	// if the last character in the calculator string was an operator (with an exception of the closed bracket), a new operator replaces the previous one
 							if(previousChar == ')' || previousChar == '!')
 								inputField.setText(inputField.getText() + text);
-							else
+							else if(previousChar == '(')
+								inputField.setText(inputField.getText() + "0" + text);
+							else 
 								inputField.setText(inputField.getText().substring(0, inputField.getText().length()-1) + text);
 						}
 					break;
@@ -238,14 +240,14 @@ public class MainClass
 					case ")":
 						try // checks to see if the last character entered was an operator or a number
 						{
-							Integer.parseInt(Character.toString(previousChar));
+							if(previousChar != ')')
+								Integer.parseInt(Character.toString(previousChar));
 							
 							inputField.setText(inputField.getText() + ")");
 						}
 						catch(Exception e)
 						{
-							if(previousChar != ')')
-								inputField.setText(inputField.getText() + "0)");
+							inputField.setText(inputField.getText() + "0)");
 						}
 					break;
 					
@@ -298,7 +300,10 @@ public class MainClass
 					break;
 					
 					default:
-						inputField.setText(inputField.getText() + "*" + text);
+						if(previousChar != '(')
+							inputField.setText(inputField.getText() + "*" + text);
+						else
+							inputField.setText(inputField.getText() + text);
 				}
 			}
 		}
