@@ -246,6 +246,7 @@ public class ButtonClass extends JButton
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			System.out.println(getClass() + ": Failed to load a soundfile at the adress of " + soundFile);
 		}
 	}
