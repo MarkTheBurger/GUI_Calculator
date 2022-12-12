@@ -28,7 +28,8 @@ public class Intro {
 	
 	public static boolean getAccessibilityMode()
 	{
-		return accessibilityMode;
+		//return accessibilityMode;
+		return true;
 	}
 	
 	public static void main(String[] args) 
@@ -38,10 +39,13 @@ public class Intro {
 	
 	Intro()
 	{
+		new MainClass();
+		/*
 		initializeFrame();
 		playIntro();
+		*/
 	}
-
+/*
 	private void initializeFrame()
 	{
 		f = new JFrame("text");
@@ -136,4 +140,5 @@ public class Intro {
 			System.out.println(getClass() + ": Failed to load a soundfile at the adress of " + new File(getFilePath() + "intro.wav"));
 		}
 	}
+	*/
 }
