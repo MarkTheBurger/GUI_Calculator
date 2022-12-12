@@ -41,7 +41,7 @@ public class MainClass
 			{"|x|", "4", "5", "6", "-"}, 
 			{"x!", "1", "2", "3", "+"}, 
 			{"mode", "e", "0", ".", "="}};
-	private static final String[] operatorsPriority = {"sin", "cos", "tan", "arcsin", "arccos", "arctan", "lg", "ln",
+	private static final String[] operatorsPriority = {"arcsin", "arccos", "arctan", "sin", "cos", "tan", "lg", "ln",
 														"√", "^", "EXP", "!", "/", "*", "+", "-"};
 	private static ArrayList<Integer> operatorsIndexes;
 	private static ArrayList<String> operatorsNames;
@@ -53,6 +53,16 @@ public class MainClass
 	private static boolean scientificMode = false;
 	private static boolean accessibilityMode = Intro.getAccessibilityMode();
 	private static boolean degrees = true;
+	
+	/*
+	 * TODO
+	 * 15 spaces max for a number
+	 * fix all bugs 
+	 * make all functions work
+	 * make an error functionality
+	 * take care of exceptions(root, log of a negative, divide by zero)
+	 * voice negative numbers
+	 */
 	
 	MainClass()
 	{
@@ -104,27 +114,23 @@ public class MainClass
 		inputField.setBackground(bgColor);
 		inputField.setForeground(Color.WHITE);
 		
-		inputFieldScroll = new JScrollPane(inputField, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		inputFieldScroll.setBorder(BorderFactory.createEmptyBorder());
-		
-		
 		outputField = new JLabel(" ", SwingConstants.RIGHT);
 		outputField.setFont(smallFont);
 		outputField.setOpaque(true);
 		outputField.setBackground(bgColor);
 		outputField.setForeground(Color.WHITE);
 		
-		
+		inputFieldScroll = new JScrollPane(inputField, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		inputFieldScroll.setBorder(BorderFactory.createEmptyBorder());
 		outputFieldScroll = new JScrollPane(outputField, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		outputFieldScroll.setBorder(BorderFactory.createEmptyBorder());
 		
-		
-		topPanel.add(inputFieldScroll); //, BorderLayout.NORTH
-		topPanel.add(outputFieldScroll); // , BorderLayout.CENTER
+		topPanel.add(inputFieldScroll);
+		topPanel.add(outputFieldScroll);
 		
 		buttonPanel.setBackground(bgColor);
 		
-		setMode();
+		setCalculatorMode();
 
 		mainPanel.add(topPanel, BorderLayout.NORTH);
 		mainPanel.add(buttonPanel, BorderLayout.CENTER);
@@ -479,7 +485,9 @@ public class MainClass
 				if(!operator.contentEquals("√"))
 					x = Double.parseDouble(text.substring(start, operatorsIndexes.get(arrIndex)));
 				
+				// take the number present after the operator as the second number
 				y = Double.parseDouble(text.substring(operatorsIndexes.get(arrIndex) + 1, end));
+				
 				String result = switch (operator)
 				{
 					case "+":
@@ -493,7 +501,7 @@ public class MainClass
 						
 					case "/":
 						if(y == 0)
-							yield "0";
+							yield "Error";
 						
 						yield String.valueOf(x/y);
 						
@@ -510,11 +518,15 @@ public class MainClass
 						yield "Error";
 				};
 
-				StringBuilder temp = new StringBuilder(text);
+				// breaks out of the calculation process as soon as an error had been discovered
+				if(result.contentEquals("Error"))
+					return "Error";
+				
 				// removes the standart ".0" associated with a double as a result
 				if(result.endsWith(".0"))
 					result = result.substring(0, result.length()-2);
 				
+				StringBuilder temp = new StringBuilder(text);
 				temp.replace(start, end, result);
 				text = temp.toString();
 			}
@@ -536,6 +548,7 @@ public class MainClass
 	
 	static int factorial(double x)
 	{
+		// wrong, can work as a decimal
 		if(x == 0)
 			return 1;
 		
@@ -556,7 +569,8 @@ public class MainClass
 			{"x!", "1", "2", "3", "+"}, 
 			{"mode", "e", "0", ".", "="}};
 		 */
-		setAnswerMode(false);
+		if(!text.contentEquals("="))
+			setAnswerMode(false);
 		
 		switch(text)
 		{
@@ -579,7 +593,7 @@ public class MainClass
 				
 			case "mode": // switches the calculator modes
 				scientificMode = !scientificMode;
-				setMode();
+				setCalculatorMode();
 			break;
 				
 			case "x":
@@ -617,7 +631,7 @@ public class MainClass
 			
 			default:
 				addCharacter(text);
-				break;
+			break;
 		}
 			
 		f.requestFocus();
@@ -638,8 +652,8 @@ public class MainClass
 		}
 	}
 	
-	// Function responsible for button render depending on the calculator mode currently set (normal vs scientific)
-	static void setMode()
+	// Function responsible for button render depending on the calculator mode currently set (normal or scientific)
+	static void setCalculatorMode()
 	{
 		GridBagConstraints g = new GridBagConstraints();
 		g.fill = GridBagConstraints.BOTH;
